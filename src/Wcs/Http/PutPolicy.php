@@ -1,5 +1,7 @@
 <?php
-namespace  Wcs\Http;
+
+namespace Wcs\Http;
+
 use Wcs\Utils;
 use Wcs\Config;
 
@@ -16,12 +18,10 @@ final class PutPolicy
     public $scope;
 
 
-
     /**
      * 上传请求授权的截止时间戳, 单位为毫秒
      */
     public $deadline;
-
 
 
     /**
@@ -34,13 +34,11 @@ final class PutPolicy
     public $returnBody;
 
 
-
     /**
      * 指定是否覆盖服务器上已经存在的文件<br />
      * 1-允许覆盖, 0-不允许
      */
     public $overwrite;
-
 
 
     /**
@@ -49,12 +47,10 @@ final class PutPolicy
     public $fsizeLimit;
 
 
-
     /**
      * Web端文件上传成功后，浏览器执行303跳转的URL
      */
     public $returnUrl;
-
 
 
     /**
@@ -66,14 +62,12 @@ final class PutPolicy
     public $callbackUrl;
 
 
-
     /**
      * 上传成功后，网宿云POST方式提交请求的数据。
      * 格式例子:<keyName>=(keyValue)&<keyName>=(keyValue)<br />
      * 必须以键值的格式
      */
     public $callbackBody;
-
 
 
     /**
@@ -85,26 +79,25 @@ final class PutPolicy
     public $persistentOps;
 
 
-
     /**
      * 持久化操作通知Url
      */
     public $persistentNotifyUrl;
 
     /**
-    * 鉴黄
-    */
+     * 鉴黄
+     */
     public $contentDetect;
     public $detectNotifyURL;
     public $detectNotifyRule;
 
 
-    public function to_string()
+    public function to_string($config)
     {
         $policy = array('scope' => $this->scope);
 
         if (empty($this->deadline)) {
-            $this->deadline = round(1000 * (microtime(true) + Config::WCS_TOKEN_DEADLINE), 0);
+            $this->deadline = round(1000 * (microtime(true) +$config->WCS_TOKEN_DEADLINE), 0);
         }
         $policy['deadline'] = $this->deadline;
 
@@ -159,13 +152,14 @@ final class PutPolicy
         return json_encode($policy);
     }
 
-    public function get_token() {
-        $ppString = $this->to_string();
+    public function get_token($config)
+    {
+        $ppString = $this->to_string($config);
         $ppString = Utils::url_safe_base64_encode($ppString);
-        $ak = Config::WCS_ACCESS_KEY;
-        $sk = Config::WCS_SECRET_KEY;
+        $ak = $config->WCS_ACCESS_KEY;
+        $sk = $config->WCS_SECRET_KEY;
         $sign = hash_hmac('sha1', $ppString, $sk, false);
-        return $ak.':'.Utils::url_safe_base64_encode($sign).':'.$ppString;
+        return $ak . ':' . Utils::url_safe_base64_encode($sign) . ':' . $ppString;
         #return \Wcs\get_token_with_data($config, $ppString);
     }
 }

@@ -13,12 +13,14 @@ class Fops {
      */
     private $bucket;
     private $auth;
+    private $config;
 
 
-    public function __construct($auth, $bucket)
+    public function __construct($auth, $bucket,$config)
     {
         $this->bucket = $bucket;
         $this->auth = $auth;
+        $this->config = $config;
     }
 
     private function _genernate_header($url, $body=null)
@@ -33,7 +35,7 @@ class Fops {
      * @return mixed
      */
     public function exec($fops, $key, $notifyURL=null, $force=0, $separate=0) {
-        $url = Utils::parse_url(Config::WCS_MGR_URL) . '/fops';
+        $url = Utils::parse_url($this->config->WCS_MGR_URL) . '/fops';
         $encodebucket = Utils::url_safe_base64_encode(($this->bucket));
         $body = 'bucket='.$encodebucket;
         $body .= '&key=' . Utils::url_safe_base64_encode($key);
@@ -54,8 +56,8 @@ class Fops {
      * @param $persistentId
      * @return mixed
      */
-    public static function status($persistentId) {
-        $url = Utils::parse_url(Config::WCS_MGR_URL) . '/status/get/prefop?persistentId=' . $persistentId;
+    public  function status($persistentId) {
+        $url = Utils::parse_url($this->config->WCS_MGR_URL) . '/status/get/prefop?persistentId=' . $persistentId;
         $resp = Utils::http_get($url, null);
 
         return $resp;

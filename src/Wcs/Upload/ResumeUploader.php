@@ -40,6 +40,7 @@ class ResumeUploader
     private $rcdFileHandle;
     private $rcdLogHandle;
     private $hash;
+    private $config;
 
     //uuid随机数用 php 的uniqid()
     private $uuid;
@@ -54,12 +55,13 @@ class ResumeUploader
         $token,
         $userParam = null,
         $encodedUserVars = null,
-        $mimeType = null
+        $mimeType = null,
+        $config = null
     ) {
-
-        $this->blockSize = Config::WCS_BLOCK_SIZE;
-        $this->chunkSize = Config::WCS_CHUNK_SIZE;
-        $this->countForRetry = Config::WCS_COUNT_FOR_RETRY;
+        $this->config = $config;
+        $this->blockSize =$config->WCS_BLOCK_SIZE;
+        $this->chunkSize = $config->WCS_CHUNK_SIZE;
+        $this->countForRetry =$config->WCS_COUNT_FOR_RETRY;
         $this->blockNumOfUploaded = 0;
         $this->chunkNumOfUploaded = 0;
         $this->ctxListForMkfile = array();
@@ -107,9 +109,9 @@ class ResumeUploader
         // 记录文件后缀.rcd, WCS_RECORD_URL 为记录文件的路径，默认是上传文件当前路径
         // 2022-12-28：修改记录文件名称为完整路径的base64值，避免不同路径的同名文件上传记录相互影响
         $recordName = Utils::url_safe_base64_encode($localFile);
-        $this->recordFile = Config::WCS_RECORD_URL . '.' . $recordName . '.rcd';
+        $this->recordFile  =$this->config->WCS_RECORD_URL . '.' . $recordName . '.rcd';
         //日志文件
-        $this->recordLog = Config::WCS_RECORD_URL . '.' . $recordName . '.log';
+        $this->recordLog = $this->config->WCS_RECORD_URL . '.' . $recordName . '.log';
         
         if(!file_exists($this->localFile)) {
             die("ERROR: {$this->localFile}文件不存在！");
@@ -193,7 +195,7 @@ class ResumeUploader
         //片大小必须是块大小的整数倍
         $blockNum = ceil($this->sizeOfFile / ($this->blockSize));
 
-        $client = new Client(['timeout' => Config::WCS_TIMEOUT,'User-Agent' =>Utils::get_user_agent()]);
+        $client = new Client(['timeout' => $this->config->WCS_TIMEOUT,'User-Agent' =>Utils::get_user_agent()]);
 
         $requests = function ($blockNum) {
 
@@ -230,7 +232,7 @@ class ResumeUploader
 
                 $chunkNum = ceil(($curBlockSize) / ($this->chunkSize));
 
-                $url = Utils::parse_url(Config::WCS_PUT_URL) . '/mkblk/' . $curBlockSize . '/' . $curBlockNum;
+                $url = Utils::parse_url($this->config->WCS_PUT_URL) . '/mkblk/' . $curBlockSize . '/' . $curBlockNum;
                 //mkblk
                 //如果当前文件剩余内容小于chunkSize,只会读取到EOF
                 //定位到文件上次中断的位置
@@ -420,7 +422,7 @@ class ResumeUploader
      * @return Wcs\Http\Response
      */
     function mkblk($curBlockSize, $curBlockNum, $token, $nextChunk) {
-        $url = Utils::parse_url(Config::WCS_PUT_URL) . '/mkblk/' . $curBlockSize . '/' . $curBlockNum;
+        $url = Utils::parse_url($this->config->WCS_PUT_URL) . '/mkblk/' . $curBlockSize . '/' . $curBlockNum;
         $mimeType = null;
 
         $httpHeaders = array(
@@ -444,7 +446,7 @@ class ResumeUploader
      * @return Wcs\Http\Response
      */
     function  bput($ctx, $nextChunkOffset, $token, $nextChunk) {
-        $url = Utils::parse_url(Config::WCS_PUT_URL) . '/bput/' . $ctx . '/' . $nextChunkOffset;
+        $url = Utils::parse_url($this->config->WCS_PUT_URL) . '/bput/' . $ctx . '/' . $nextChunkOffset;
         $mimeType = null;
 
         $httpHeaders = array(
@@ -466,7 +468,7 @@ class ResumeUploader
      * @return Wcs\Http\Response
      */
     function mkfile($token) {
-        $url = Utils::parse_url(Config::WCS_PUT_URL) . '/mkfile/' . $this->sizeOfFile . '/';
+        $url = Utils::parse_url($this->config->WCS_PUT_URL) . '/mkfile/' . $this->sizeOfFile . '/';
 
         if($this->userParam !== null) {
             $url .= $this->userParam.'/';

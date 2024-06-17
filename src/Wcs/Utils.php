@@ -52,9 +52,9 @@ class Utils
         return stripos($str, $token) == 0;
     }
 
-    public static function get_user_agent()
+    public static function get_user_agent($config)
     {
-        $sdkInfo = "WCS PHP SDK /" . Config::WCS_SDK_VER . " (http://wcs.chinanetcenter.com/)";
+        $sdkInfo = "WCS PHP SDK /" . $config->WCS_SDK_VER . " (http://wcs.chinanetcenter.com/)";
 
         $systemInfo = php_uname("s");
         $machineInfo = php_uname("m");
@@ -67,19 +67,19 @@ class Utils
         return $ua;
     }
 
-    public static function http_get($url, $headers, $opt = null)
+    public static function http_get($url, $headers, $opt = null,$config = null)
     {
         $ch = curl_init();
         $options = array(
-            CURLOPT_USERAGENT => self::get_user_agent(),
+            CURLOPT_USERAGENT => self::get_user_agent($config),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_VERBOSE => Config::CURLOPT_VERBOSE,
+            CURLOPT_VERBOSE => $config->CURLOPT_VERBOSE,
             CURLOPT_HEADER => true,
             CURLOPT_NOBODY => false,
             CURLOPT_URL => $url,
-            CURLOPT_TIMEOUT => Config::WCS_TIMEOUT
+            CURLOPT_TIMEOUT => $config->WCS_TIMEOUT
         );
 
         if($opt) {
@@ -134,23 +134,23 @@ class Utils
         return $ret;
     }
 
-    public static function http_post($url, $headers, $fields, $opt = null)
+    public static function http_post($url, $headers, $fields, $opt = null,$config=null)
     {
 
         $ch = curl_init();
 
         $options= array(
-            CURLOPT_USERAGENT => self::get_user_agent(),
+            CURLOPT_USERAGENT => self::get_user_agent($config),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_HEADER => true,
             CURLOPT_NOBODY => false,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_VERBOSE => Config::CURLOPT_VERBOSE,
+            CURLOPT_VERBOSE => $config->CURLOPT_VERBOSE,
             CURLOPT_URL => $url,
-            CURLOPT_TIMEOUT => Config::WCS_TIMEOUT,
-            CURLOPT_CONNECTTIMEOUT => Config::WCS_CONNECTTIMEOUT,
+            CURLOPT_TIMEOUT => $config->WCS_TIMEOUT,
+            CURLOPT_CONNECTTIMEOUT => $config->WCS_CONNECTTIMEOUT,
         );
 
         if($opt) {
@@ -206,14 +206,14 @@ class Utils
     }
 
 
-    public static function build_public_url($bucketName, $fileName)
+    public static function build_public_url($bucketName, $fileName,$config)
     {
         $HTTP_PREFIX = 'http://';
 
-        if (self::str_start_with(Config::WCS_GET_URL, $HTTP_PREFIX)) {
-            $baseUrl = $HTTP_PREFIX . $bucketName . '.' . substr(Config::WCS_GET_URL, strlen($HTTP_PREFIX));
+        if (self::str_start_with($config->WCS_GET_URL, $HTTP_PREFIX)) {
+            $baseUrl = $HTTP_PREFIX . $bucketName . '.' . substr($config->WCS_GET_URL, strlen($HTTP_PREFIX));
         } else {
-            $baseUrl = $bucketName . '.' . Config::WCS_GET_URL;
+            $baseUrl = $bucketName . '.' . $config->WCS_GET_URL;
         }
 
             $baseUrl .= '/' . $fileName;

@@ -16,11 +16,14 @@ class Uploader
     private $userParam;
     private $userVars;
     private $mimeType;
+    private $token;
+    private $config;
 
 
-    function __construct($token)
+    function __construct($token, $config)
     {
         $this->token = $token;
+        $this->config = $config;
     }
 
 
@@ -47,7 +50,7 @@ class Uploader
         if(!file_exists($localFile)) {
             die("ERROR: {$localFile}文件不存在！");
         }
-        $url = Utils::parse_url(Config::WCS_PUT_URL) . '/file/upload';
+        $url = Utils::parse_url($this->config->WCS_PUT_URL) . '/file/upload';
 
         $token = $this->token;
 

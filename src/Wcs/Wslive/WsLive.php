@@ -8,9 +8,11 @@ use Wcs\Utils;
 class WsLive
 {
     private $auth;
-    function __construct($auth)
+    private $config;
+    function __construct($auth, $config)
     {
         $this->auth = $auth;
+        $this->config = $config;
     }
     private function _generate_headers($url, $body=null)
     {
@@ -20,7 +22,7 @@ class WsLive
     }
     public function wslive_list($channelname, $startTime, $endTime, $bucket, $start=null, $limit=null)
     {
-        $url = Utils::parse_url(Config::WCS_MGR_URL).'/wslive/list';
+        $url = Utils::parse_url($this->config->WCS_MGR_URL).'/wslive/list';
         $query = "channelname=".$channelname."&startTime=".$startTime."&endTime=".$endTime."&bucket=".$bucket;
         if($start)
         {
