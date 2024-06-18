@@ -36,16 +36,16 @@ class Uploader
      * @param $returnBody
      * @return string
      */
-    function upload_return($localFile) {
+    function upload_return($localFile,$fileName) {
         global $UPLOAD;
         $UPLOAD = basename($localFile);
-        $resp = $this->_upload($localFile);
+        $resp = $this->_upload($localFile,$fileName);
 
         return $this->build_result($resp);
 
     }
 
-    function _upload($localFile) {
+    function _upload($localFile,$fileName) {
 
         if(!file_exists($localFile)) {
             die("ERROR: {$localFile}文件不存在！");
@@ -58,7 +58,7 @@ class Uploader
         $fields = array(
             'token' => $token,
             'file' => $this->create_file($localFile, $this->mimeType),
-            //'key' => $fileName
+            'key' => $fileName
         );
 
 
