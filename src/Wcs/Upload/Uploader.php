@@ -68,7 +68,7 @@ class Uploader
             CURLOPT_NOPROGRESS => true
         );
 
-        $resp = Utils::http_post($url, null, $fields, $opt);
+        $resp = Utils::http_post($url, null, $fields, $opt,$this->config);
 
         return $resp;
     }
