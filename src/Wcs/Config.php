@@ -24,8 +24,8 @@ class Config
     //上传文件设置
     public $WCS_OVERWRITE = 0; //默认文件不覆盖
     //超时时间
-    public $WCS_TIMEOUT = 30;
-    public $WCS_CONNECTTIMEOUT = 30;
+    public $WCS_TIMEOUT = 120;
+    public $WCS_CONNECTTIMEOUT = 120;
 
     //虚拟内存目录
     public $WCS_RAM_URL = '/mnt/ramdisk/';
